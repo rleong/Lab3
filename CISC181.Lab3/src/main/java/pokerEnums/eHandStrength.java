@@ -2,20 +2,25 @@ package pokerEnums;
 
 public enum eHandStrength {
 
-	FiveOfAKind(110, "isHandFiveOfAKind") {
-		@Override
+	NaturalRoyalFlush(120, "isHandNaturalRoyalFlush") {
 		public String toString() {
-			return "Five of a Kind";
+			return "Natural Royal Flush";
 		}
 	},
-	RoyalFlush(100, "isHandRoyalFlush") {
+	RoyalFlush(110, "isHandRoyalFlush") {
 		public String toString() {
 			return "Royal Flush";
 		}
 	},
-	StraightFlush(90, "isHandStraightFlush") {
+	StraightFlush(100, "isHandStraightFlush") {
 		public String toString() {
 			return "Straight Flush";
+		}
+	},
+	FiveOfAKind(90, "isHandFiveOfAKind") { //Does this belong here?
+		@Override
+		public String toString() {
+			return "Five of a Kind";
 		}
 	},
 	FourOfAKind(80, "isHandFourOfAKind") {

@@ -223,6 +223,27 @@ public class Hand {
 		return isRoyalFlush;
 	}
 
+	public static boolean isHandNaturalRoyalFlush(Hand h, HandScore hs) {
+
+		Card c = new Card();
+		boolean isNaturalRoyalFlush = false;
+		boolean joker = false;
+		for (int i = 0; i < 5; i++) {
+			if (h.getCardsInHand().get(i).geteRank() == eRank.JOKER) {
+				joker = true;
+				break;
+			}
+		}
+		if (joker == false && isHandRoyalFlush(h, hs)) {
+			isNaturalRoyalFlush = true;
+			hs.setHandStrength(eHandStrength.NaturalRoyalFlush.getHandStrength());
+			hs.setHiHand(h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank().getiRankNbr());
+			hs.setLoHand(0);
+		}
+
+		return isNaturalRoyalFlush;
+	}
+
 	public static boolean isHandStraightFlush(Hand h, HandScore hs) {
 		Card c = new Card();
 		boolean isRoyalFlush = false;
