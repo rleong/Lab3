@@ -75,6 +75,7 @@ public enum eHandStrength {
 
 	public int getHandStrength() {
 		return iHandStrength;
+		
 	}
 
 	public String getEvalMethod() {

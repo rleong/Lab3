@@ -64,6 +64,16 @@ public class Hand {
 		CardsInHand.add(c);
 		return this;
 	}
+	
+	public static Hand PickBestHand(ArrayList<Hand> Hands) throws exHand{ //Check w/ Professor if sorted by Descending Order
+		Collections.sort(Hands, Hand.HandRank);
+		if (Hands.get(0).getHandScore().getHandStrength() == Hands.get(1).getHandScore().getHandStrength()){
+			throw new exHand();
+		}
+		else{
+			return Hands.get(0);
+		}
+	}
 
 	public Hand Draw(Deck d) throws DeckException {
 		CardsInHand.add(d.Draw());
