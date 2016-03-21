@@ -135,6 +135,40 @@ public class Hand {
 		}
 		return h;
 	}
+	
+	public void handleJokers(Hand h){
+		
+		Collections.sort(h.getBestCardsInHand());
+		int jokerCount = 0;
+		ArrayList<Integer> jokerNbr = new ArrayList();
+		
+		for (int i = 0; i < h.getBestCardsInHand().size(); i++){
+			if(h.getBestCardsInHand().get(i).geteRank() == eRank.JOKER){
+				jokerCount++;
+				jokerNbr.add(h.getBestCardsInHand().get(i).getiCardNbr());
+				h.getBestCardsInHand().remove(i);
+			}
+			else
+				continue;
+		}
+		
+		switch (jokerCount){
+		case 1:
+			
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN, jokerNbr.get(0)));
+			break;
+		}
+		
+		
+	}
 
 	private static boolean isHandFlush(ArrayList<Card> cards) {
 		int cnt = 0;
