@@ -158,124 +158,91 @@ public class Hand {
 		int sameCards1 = 0;
 		Collections.sort(h.getBestCardsInHand());
 
-		if (h.getBestCardsInHand().size() > 1) { // Possible pair solutions for
-													// more than 1 card in hand
+		//Checking for pairs
+		for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
+			if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j + 1).geteRank()) {
+				sameCards1++;
+			}
+		}
+
+		// Now, based on the amount of same cards, we check for which pairs can
+		// go with which, and which straights are the best possible solutions.
+		if (sameCards1 == 0 && h.getBestCardsInHand().size() != 0) {
+			switch (h.getBestCardsInHand().size()){
+			
+			}
+		} else if (sameCards1 == 1) {
+			// If there is only 1 pair of cards that are the same, regardless of
+			// the number of jokers,
+			// the best possible hand score can only be if the jokers were the
+			// same as the rank as the
+			// paired cards. Hands like 2 pair or Full house is unachievable.
 			for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
-				if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j).geteRank()) {
-					sameCards1++;
+				if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j + 1).geteRank()) {
+					for (int i = 0; i < jokerNbr.size(); i++) {
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(j).geteSuit(),
+								h.getBestCardsInHand().get(j).geteRank(), jokerNbr.get(i)));
+					}
+					break;
 				}
 			}
-		} else if (h.getBestCardsInHand().size() == 1) {
-			// Do nothing, go to the next step. Best possible solutions for 1
-			// card and 4 jokers would be
-			// Straight or Flush related wins.
-		} else { // If all the cards were jokers, the best possible solution
-					// would be a Royal Flush
+		} else if (sameCards1 == 2) {
+			// Now, it is possible to have 3 of the same cards or 2 and 2 of the
+			// same cards
+			switch (h.getBestCardsInHand().size()) {
+			case 3:
+				// If the same count is 2, the minimum cards the hand will have
+				// should at least be 3
+				// If there are only 3 cards in hand, and all three of them are
+				// the same,
+				// A five of a kind is the best solution.
+				for (int i = 0; i < jokerNbr.size(); i++) {
+					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
+				}
+				break;
+			case 4:
+				// Now there are a bit more possibilities with 4 cards in hand.
+				// One of them is that there are 3 cards that are the same,
+				// while 1 card is not.
+				// If this is true, the best option would be a four of a kind.
+				if (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getBestCardsInHand()
+						.get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
+					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+				} else if (h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank() == h
+						.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
+					h.getBestCardsInHand().add(new Card(
+							h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+				}
+				// What if there are 2 cards the same, and another 2 cards the
+				// same?
+				// The best possible result of this would be a full house.
+				else if (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getBestCardsInHand()
+						.get(eCardNo.SecondCard.getCardNo()).geteRank()
+						&& h.getBestCardsInHand().get(eCardNo.ThirdCard.getCardNo()).geteRank() == h
+								.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
+					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+				} else {// The above situations should satisfy everything. If
+						// not, this would alert us.
+					System.out.println("Yo dawg sumthin' went wrong yu gotta check it out maannn");
+				}
+				break;
+			default:
+				Collections.sort(h.getBestCardsInHand());
+			}
+		} else if (sameCards1 == 3) {
+
+		} else { // And if all the cards are jokers, then you are one lucky gun!
+					// ROYAL FLUSH!!!
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN, jokerNbr.get(0)));
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.JACK, jokerNbr.get(1)));
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.QUEEN, jokerNbr.get(2)));
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.KING, jokerNbr.get(3)));
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE, jokerNbr.get(4)));
 		}
-
-		// Now, based on the amount of same cards, we check for which pairs can
-		// go with which.
-
-		if (sameCards1 == 1) {
-			switch (h.BestCardsInHand.size()) {
-			case 2:
-				//Best possibility for 2 of the same cards and 3 Jokers is 5 of a kind
-				for(int i = 0; i < jokerNbr.size(); i++){
-					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
-				}
-				break;
-			case 3:
-				//Best possibility with 2 of the same cards, and 1 different, and 2 jokers is 4 of a kind
-				for(int i = 0; i < jokerNbr.size(); i++){
-					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
-				}
-				break;
-			case 4:
-				//Best possibility with 2 of the same cards, and 2 different and 1 joker is 3 of a kind
-				for(int i = 0; i < jokerNbr.size(); i++){
-					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
-				}
-				break;
-			default:
-				Collections.sort(h.getBestCardsInHand());
-			}
-		}
-		else if (sameCards1 == 2){
-			
-		}
-
-		// switch (sameCards1) {
-		// case 1:
-		// // There are a couple of scenarios with the same count as 1.
-		// // The first is that it could be a Full House (Because it's better
-		// // than a three pair,
-		// // And it's also possible.
-		// if
-		// (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank()
-		// == h.getBestCardsInHand()
-		// .get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
-		// // This makes sure that the first and third are the same
-		// h.getBestCardsInHand()
-		// .add(new
-		// Card(h.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteSuit(),
-		// h.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank(),
-		// jokerNbr.get(0)));
-		// // Adds a card that's the same as the last card, making this a
-		// // full house.
-		// }
-		// break;
-		// case 2:
-		//
-		// break;
-		// case 3:
-		// // This means all 4 cards are the same
-		// h.getBestCardsInHand().add(new
-		// Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-		// h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
-		// jokerNbr.get(0)));
-		// // Adds in the same card as the first card to make this a Five of a
-		// // Kind
-		// break;
-		// default:
-		// Collections.sort(h.getBestCardsInHand());
-		// }
-
-		// switch (jokerCount) {
-		// case 1:
-		//
-		// break;
-		// case 2:
-		// break;
-		// case 3:
-		// break;
-		// case 4:
-		// if(h.getBestCardsInHand().get(0).geteRank().getiRankNbr() < 10){
-		// //for ()
-		// }
-		// break;
-		// case 5:
-		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN,
-		// jokerNbr.get(0)));
-		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.JACK,
-		// jokerNbr.get(1)));
-		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.QUEEN,
-		// jokerNbr.get(2)));
-		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.KING,
-		// jokerNbr.get(3)));
-		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE,
-		// jokerNbr.get(4)));
-		// break;
-		// default:
-		// Collections.sort(h.getBestCardsInHand());
-		// }
 
 	}
 
