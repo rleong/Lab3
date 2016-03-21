@@ -64,13 +64,12 @@ public class Hand {
 		CardsInHand.add(c);
 		return this;
 	}
-	
-	public static Hand PickBestHand(ArrayList<Hand> Hands) throws exHand{ //Check w/ Professor if sorted by Descending Order
+
+	public static Hand PickBestHand(ArrayList<Hand> Hands) throws exHand {
 		Collections.sort(Hands, Hand.HandRank);
-		if (Hands.get(0).getHandScore().getHandStrength() == Hands.get(1).getHandScore().getHandStrength()){
+		if (Hands.get(0).getHandScore().getHandStrength() == Hands.get(1).getHandScore().getHandStrength()) {
 			throw new exHand();
-		}
-		else{
+		} else {
 			return Hands.get(0);
 		}
 	}
@@ -135,39 +134,149 @@ public class Hand {
 		}
 		return h;
 	}
-	
-	public void handleJokers(Hand h){
-		
-		Collections.sort(h.getBestCardsInHand());
+
+	public void handleJokers(Hand h) {
+
+		// This is to count how many jokers there are in the hand
+		// Then, we also record the Joker's iCardNbr as to not mess up anything
+		// in the long run
+		// The result will have a hand without jokers
 		int jokerCount = 0;
 		ArrayList<Integer> jokerNbr = new ArrayList();
-		
-		for (int i = 0; i < h.getBestCardsInHand().size(); i++){
-			if(h.getBestCardsInHand().get(i).geteRank() == eRank.JOKER){
+
+		for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+			if (h.getBestCardsInHand().get(i).geteRank() == eRank.JOKER) {
 				jokerCount++;
 				jokerNbr.add(h.getBestCardsInHand().get(i).getiCardNbr());
 				h.getBestCardsInHand().remove(i);
-			}
-			else
+			} else
 				continue;
 		}
-		
-		switch (jokerCount){
-		case 1:
-			
-			break;
-		case 2:
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		case 5:
+
+		// Now, time to see what to do with the remaining cards
+		// Check whether or not these cards can be pairs and such
+		int sameCards1 = 0;
+		Collections.sort(h.getBestCardsInHand());
+
+		if (h.getBestCardsInHand().size() > 1) { // Possible pair solutions for
+													// more than 1 card in hand
+			for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
+				if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j).geteRank()) {
+					sameCards1++;
+				}
+			}
+		} else if (h.getBestCardsInHand().size() == 1) {
+			// Do nothing, go to the next step. Best possible solutions for 1
+			// card and 4 jokers would be
+			// Straight or Flush related wins.
+		} else { // If all the cards were jokers, the best possible solution
+					// would be a Royal Flush
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN, jokerNbr.get(0)));
-			break;
+			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.JACK, jokerNbr.get(1)));
+			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.QUEEN, jokerNbr.get(2)));
+			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.KING, jokerNbr.get(3)));
+			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE, jokerNbr.get(4)));
 		}
-		
-		
+
+		// Now, based on the amount of same cards, we check for which pairs can
+		// go with which.
+
+		if (sameCards1 == 1) {
+			switch (h.BestCardsInHand.size()) {
+			case 2:
+				//Best possibility for 2 of the same cards and 3 Jokers is 5 of a kind
+				for(int i = 0; i < jokerNbr.size(); i++){
+					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
+				}
+				break;
+			case 3:
+				//Best possibility with 2 of the same cards, and 1 different, and 2 jokers is 4 of a kind
+				for(int i = 0; i < jokerNbr.size(); i++){
+					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
+				}
+				break;
+			case 4:
+				//Best possibility with 2 of the same cards, and 2 different and 1 joker is 3 of a kind
+				for(int i = 0; i < jokerNbr.size(); i++){
+					h.BestCardsInHand.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
+				}
+				break;
+			default:
+				Collections.sort(h.getBestCardsInHand());
+			}
+		}
+		else if (sameCards1 == 2){
+			
+		}
+
+		// switch (sameCards1) {
+		// case 1:
+		// // There are a couple of scenarios with the same count as 1.
+		// // The first is that it could be a Full House (Because it's better
+		// // than a three pair,
+		// // And it's also possible.
+		// if
+		// (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank()
+		// == h.getBestCardsInHand()
+		// .get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
+		// // This makes sure that the first and third are the same
+		// h.getBestCardsInHand()
+		// .add(new
+		// Card(h.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteSuit(),
+		// h.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank(),
+		// jokerNbr.get(0)));
+		// // Adds a card that's the same as the last card, making this a
+		// // full house.
+		// }
+		// break;
+		// case 2:
+		//
+		// break;
+		// case 3:
+		// // This means all 4 cards are the same
+		// h.getBestCardsInHand().add(new
+		// Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+		// h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+		// jokerNbr.get(0)));
+		// // Adds in the same card as the first card to make this a Five of a
+		// // Kind
+		// break;
+		// default:
+		// Collections.sort(h.getBestCardsInHand());
+		// }
+
+		// switch (jokerCount) {
+		// case 1:
+		//
+		// break;
+		// case 2:
+		// break;
+		// case 3:
+		// break;
+		// case 4:
+		// if(h.getBestCardsInHand().get(0).geteRank().getiRankNbr() < 10){
+		// //for ()
+		// }
+		// break;
+		// case 5:
+		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN,
+		// jokerNbr.get(0)));
+		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.JACK,
+		// jokerNbr.get(1)));
+		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.QUEEN,
+		// jokerNbr.get(2)));
+		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.KING,
+		// jokerNbr.get(3)));
+		// h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE,
+		// jokerNbr.get(4)));
+		// break;
+		// default:
+		// Collections.sort(h.getBestCardsInHand());
+		// }
+
 	}
 
 	private static boolean isHandFlush(ArrayList<Card> cards) {
