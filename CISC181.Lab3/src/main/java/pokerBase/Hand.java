@@ -158,7 +158,7 @@ public class Hand {
 		int sameCards1 = 0;
 		Collections.sort(h.getBestCardsInHand());
 
-		//Checking for pairs
+		// Checking for pairs
 		for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
 			if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j + 1).geteRank()) {
 				sameCards1++;
@@ -168,8 +168,43 @@ public class Hand {
 		// Now, based on the amount of same cards, we check for which pairs can
 		// go with which, and which straights are the best possible solutions.
 		if (sameCards1 == 0 && h.getBestCardsInHand().size() != 0) {
-			switch (h.getBestCardsInHand().size()){
-			
+			eRank[] tempRank = eRank.values(); //Temporary for filling in stuff
+			int number = 0;
+			switch (h.getBestCardsInHand().size()) {
+			case 1: //If there's only 1 card, we can go straight for a royal flush, if not,
+				//a regular flush will be best.
+				if(h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10 && 
+						h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14){
+					for(int i = 10; i < 15; i++){
+						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+					}
+				}else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4){ //Regular Straight Flush
+					for(int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand().get(0).geteRank().getiRankNbr(); i++){
+						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+					}
+				}else{
+					for(int i = 0; i < 6; i++){
+						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+					}
+				}
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				break;
+			default:
+				Collections.sort(h.getBestCardsInHand());
 			}
 		} else if (sameCards1 == 1) {
 			// If there is only 1 pair of cards that are the same, regardless of
@@ -197,8 +232,10 @@ public class Hand {
 				// the same,
 				// A five of a kind is the best solution.
 				for (int i = 0; i < jokerNbr.size(); i++) {
-					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(i)));
+					h.getBestCardsInHand()
+							.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+									h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+									jokerNbr.get(i)));
 				}
 				break;
 			case 4:
@@ -208,13 +245,16 @@ public class Hand {
 				// If this is true, the best option would be a four of a kind.
 				if (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getBestCardsInHand()
 						.get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
-					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+					h.getBestCardsInHand()
+							.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+									h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+									jokerNbr.get(0)));
 				} else if (h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank() == h
 						.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
-					h.getBestCardsInHand().add(new Card(
-							h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+					h.getBestCardsInHand()
+							.add(new Card(h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteSuit(),
+									h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank(),
+									jokerNbr.get(0)));
 				}
 				// What if there are 2 cards the same, and another 2 cards the
 				// same?
@@ -223,8 +263,10 @@ public class Hand {
 						.get(eCardNo.SecondCard.getCardNo()).geteRank()
 						&& h.getBestCardsInHand().get(eCardNo.ThirdCard.getCardNo()).geteRank() == h
 								.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
-					h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
-							h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(), jokerNbr.get(0)));
+					h.getBestCardsInHand()
+							.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+									h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+									jokerNbr.get(0)));
 				} else {// The above situations should satisfy everything. If
 						// not, this would alert us.
 					System.out.println("Yo dawg sumthin' went wrong yu gotta check it out maannn");
