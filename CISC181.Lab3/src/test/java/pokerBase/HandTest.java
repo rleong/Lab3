@@ -92,7 +92,260 @@ public class HandTest {
 		
 		//	This statement should throw a HandException
 		h = Hand.EvaluateHand(h);	
-	}	
+	}
+	
+	@Test
+	// Test of hand that has 5 jokers. The highest hand strength should be 'Royal Flush'
+	public void Test_5_Jokers () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_5 = new ArrayList<Card>();
+		Jokers_5.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_5.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_5.add(new Card(eSuit.CLUBS,eRank.JOKER,0));		
+		Jokers_5.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_5.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Collections.sort(Jokers_5);
+		Hand h = new Hand();
+		h = SetHand(Jokers_5,h);
+		
+		boolean bActualIsHandRoyalFlush = Hand.isHandFiveOfAKind(h, hs);
+		boolean bExpectedIsHandRoyalFlush = true;
+		
+		//	Did this evaluate to Four of a Kind?
+		assertEquals(bActualIsHandRoyalFlush,bExpectedIsHandRoyalFlush);		
+		//	The high hand should be ACE.
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());		
+
+	}
+	
+	@Test
+	// Test of hand that has 4 jokers. 
+	//When the fifth card is greater and equal to TEN, 
+	//the highest hand strength is 'RoyalFlush'.
+	public void Test_4_JokersKind1 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_4 = new ArrayList<Card>();
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));		
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JACK,0));
+		Collections.sort(Jokers_4);
+		Hand h = new Hand();
+		h = SetHand(Jokers_4,h);
+		
+		boolean bActualIsHandRoyalFlush = Hand.isHandRoyalFlush(h, hs);
+		boolean bExpectedIsHandRoyalFlush = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualIsHandRoyalFlush,bExpectedIsHandRoyalFlush);		
+		//	The high hand should be ACE.
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());		
+
+	}
+	
+	@Test
+	// Test of hand that has 4 jokers. 
+	//When the fifth card is less than TEN, 
+	//the highest hand strength is 'Five of a kind'.
+	public void Test_4_JokersKind2 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_4 = new ArrayList<Card>();
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));		
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_4.add(new Card(eSuit.CLUBS,eRank.THREE,0));
+		Collections.sort(Jokers_4);
+		Hand h = new Hand();
+		h = SetHand(Jokers_4,h);
+		
+		boolean bActualIsHandFiveOfAKind = Hand.isHandFiveOfAKind(h, hs);
+		boolean bExpectedIsHandFiveOfAKind = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualIsHandFiveOfAKind,bExpectedIsHandFiveOfAKind);		
+		//	The high hand should be THREE.
+		assertEquals(hs.getHiHand(),eRank.THREE.getiRankNbr());		
+
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the fifth card is greater and equal to TEN and the fourth
+	//and fifth cards have the same suit,
+	//the hand should be evaluated as a Royal flush.
+	public void Test_3_JokersKind1 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.QUEEN,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.TEN,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualIsHandRoyalFlush = Hand.isHandRoyalFlush(h, hs);
+		boolean bExpectedIsHandRoyalFlush = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualIsHandRoyalFlush,bExpectedIsHandRoyalFlush);		
+		//	The high hand should be ACE.
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());		
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the difference between the fifth card and
+	// the fourth card is less and equal to FOUR but the fourth
+	//and fifth cards do not have the same suit,
+	//the hand should be evaluated as a Straight.
+	public void Test_3_JokersKind2 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.SPADES,eRank.SEVEN,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.TEN,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualIsHandStraight = Hand.isHandStraight(h, hs);
+		boolean bExpectedIsHandRoyalFlush = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualIsHandStraight,bExpectedIsHandRoyalFlush);		
+		//	The high hand should be ACE.
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());		
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the difference between the fifth card and
+	// the fourth card is less and equal to FOUR but the fourth
+	//and fifth cards do not have the same suit,
+	//the hand should be evaluated as a Straight.
+	public void Test_3_JokersKind3 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.SPADES,eRank.TWO,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.HEARTS,eRank.TEN,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualIsHandFourOfAKind = Hand.isHandFourOfAKind(h, hs);
+		boolean bExpectedIsHandFourOfAKind = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualIsHandFourOfAKind,bExpectedIsHandFourOfAKind);		
+		//	The high hand should be TEN.
+		assertEquals(hs.getHiHand(),eRank.TEN.getiRankNbr());	
+
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the difference between the fifth card and
+	// the fourth card is greater than FOUR but the fourth
+	//and fifth cards have the same suit,
+	//the hand should be evaluated as a Flush.
+	public void Test_3_JokersKind4 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.HEARTS,eRank.TWO,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.HEARTS,eRank.TEN,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualisHandFlush = Hand.isHandFlush(h, hs);
+		boolean bExpectedisHandFlush = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualisHandFlush,bExpectedisHandFlush);		
+		//	The high hand should be ACE.
+		assertEquals(hs.getHiHand(),eRank.ACE.getiRankNbr());	
+
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the difference between the fifth card and
+	// the fourth card is greater than FOUR but the fourth
+	//and fifth cards have the same suit,
+	//the hand should be evaluated as a Flush.
+	public void Test_3_JokersKind5 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.HEARTS,eRank.JOKER,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.TEN,0));
+		Jokers_3.add(new Card(eSuit.HEARTS,eRank.TEN,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualisHandFiveOfAKind = Hand.isHandFiveOfAKind(h, hs);
+		boolean bExpectedisHandFiveOfAKind = true;
+		
+		//	Did this evaluate to Royal Flush?
+		assertEquals(bActualisHandFiveOfAKind,bExpectedisHandFiveOfAKind);		
+		//	The high hand should be TEN.
+		assertEquals(hs.getHiHand(),eRank.TEN.getiRankNbr());	
+
+	}
+	
+	@Test
+	// Test of hand that has 3 jokers. 
+	//When the  card is sorted in a descending order, the hand type is decided by
+	//the rank of last two cards.
+	//Because cards are sorted already, if the difference between the fifth card and
+	// the fourth card is less and equal to FOUR and the fourth
+	//and fifth cards have the same suit,
+	//the hand should be evaluated as a Straight Flush.
+	public void Test_3_JokersKind6 () {
+		HandScore hs = new HandScore();
+		ArrayList<Card> Jokers_3 = new ArrayList<Card>();
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.SPADES,eRank.SEVEN,0));		
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Jokers_3.add(new Card(eSuit.CLUBS,eRank.SIX,0));
+		Collections.sort(Jokers_3);
+		Hand h = new Hand();
+		h = SetHand(Jokers_3,h);
+		
+		boolean bActualisHandStraightFlush = Hand.isHandStraightFlush(h, hs);
+		boolean bExpectedisHandStraightFlush = true;
+		
+		//	Did this evaluate to Straight Flush?
+		assertEquals(bActualisHandStraightFlush,bExpectedisHandStraightFlush);		
+		//	The high hand should be JACK.
+		assertEquals(hs.getHiHand(),eRank.JACK.getiRankNbr());		
+	}
+	
 			
 	@Test
 	public void TestFourOfAKind1() {
@@ -475,6 +728,30 @@ public class HandTest {
 		assertEquals(h.getHandScore().getHiHand(),eRank.ACE.getiRankNbr());			
 	}	
 	
+	@Test
+	public void TestThreeOfAKind_JOKER() {
+		
+		HandScore hs = new HandScore();
+		ArrayList<Card> ThreeOfAKind = new ArrayList<Card>();
+		ThreeOfAKind.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		ThreeOfAKind.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		ThreeOfAKind.add(new Card(eSuit.CLUBS,eRank.FIVE,0));		
+		ThreeOfAKind.add(new Card(eSuit.DIAMONDS,eRank.EIGHT,0));
+		ThreeOfAKind.add(new Card(eSuit.DIAMONDS,eRank.NINE,0));
+		Collections.sort(ThreeOfAKind);
+		Hand h = new Hand();
+		h = SetHand(ThreeOfAKind,h);
+		
+		boolean bActualIsThreeOfAKind = Hand.isHandThreeOfAKind(h, hs);
+		boolean bExpectedIsThreeOfAKind = true;
+		
+		assertEquals(bActualIsThreeOfAKind,bExpectedIsThreeOfAKind);		
+		assertEquals(hs.getHiHand(),eRank.NINE.getiRankNbr());	
+				
+		assertEquals(hs.getKickers().get(eCardNo.FourthCard.getCardNo()).geteRank(), eRank.EIGHT);
+		assertEquals(hs.getKickers().get(eCardNo.FifthCard.getCardNo()).geteRank(), eRank.FIVE);
+	}	
+	
 	
 	@Test
 	public void TestThreeOfAKind1() {
@@ -578,8 +855,6 @@ public class HandTest {
 		assertEquals(h.getHandScore().getKickers().get(eCardNo.FirstCard.getCardNo()).geteRank(), eRank.THREE);
 		assertEquals(h.getHandScore().getKickers().get(eCardNo.SecondCard.getCardNo()).geteRank(), eRank.TWO);		
 	}	
-	
-	
 	
 	@Test
 	public void TestTwoPair1() {
@@ -700,7 +975,34 @@ public class HandTest {
 		
 	}	
 	
-	
+	@Test
+	public void TestPair1_joker() {
+		
+		HandScore hs = new HandScore();
+		ArrayList<Card> Pair = new ArrayList<Card>();
+		Pair.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		Pair.add(new Card(eSuit.CLUBS,eRank.TWO,0));
+		Pair.add(new Card(eSuit.CLUBS,eRank.FIVE,0));		
+		Pair.add(new Card(eSuit.DIAMONDS,eRank.SIX,0));
+		Pair.add(new Card(eSuit.DIAMONDS,eRank.THREE,0));
+		Collections.sort(Pair);
+		Hand h = new Hand();
+		h = SetHand(Pair,h);
+		
+		boolean bActualIsPair = Hand.isHandPair(h, hs);
+		boolean bExpectedIsPair = true;
+		
+		assertEquals(bExpectedIsPair,bActualIsPair);		
+		assertEquals(hs.getHiHand(),eRank.SIX.getiRankNbr());	
+		
+		assertEquals(hs.getLoHand(),0);
+		
+		assertEquals(hs.getKickers().get(eCardNo.ThirdCard.getCardNo()).geteRank(), eRank.FIVE);
+		assertEquals(hs.getKickers().get(eCardNo.FourthCard.getCardNo()).geteRank(), eRank.THREE);
+		assertEquals(hs.getKickers().get(eCardNo.FifthCard.getCardNo()).geteRank(), eRank.TWO);
+
+	}	
+
 	
 	
 	@Test
@@ -1022,6 +1324,33 @@ public class HandTest {
 		assertEquals(h.getHandScore().getHiHand(),eRank.KING.getiRankNbr());		
 	}	
 	
+	
+	@Test
+	public void TestFullHouse_JOKER() {
+		
+		HandScore hs = new HandScore();
+		ArrayList<Card> FullHouse = new ArrayList<Card>();
+		FullHouse.add(new Card(eSuit.CLUBS,eRank.JOKER,0));
+		FullHouse.add(new Card(eSuit.CLUBS,eRank.TEN,0));
+		FullHouse.add(new Card(eSuit.CLUBS,eRank.TEN,0));		
+		FullHouse.add(new Card(eSuit.CLUBS,eRank.KING,0));
+		FullHouse.add(new Card(eSuit.CLUBS,eRank.KING,0));
+		Collections.sort(FullHouse);
+		Hand h = new Hand();
+		h = SetHand(FullHouse,h);
+		
+		boolean bActualIsFullHouse = Hand.isHandFullHouse(h, hs);
+		boolean bExpectedIsFullHouse = true;
+		
+		//	Did this evaluate
+		assertEquals(bExpectedIsFullHouse,bActualIsFullHouse);		
+		//	Test Hi Hand
+		
+		assertEquals(hs.getHiHand(),eRank.TEN.getiRankNbr());	
+		
+		assertEquals(hs.getLoHand(),eRank.KING.getiRankNbr());
+	}	
+	
 	@Test
 	public void TestFullHouse1() {
 		
@@ -1225,6 +1554,8 @@ public class HandTest {
 		
 		
 	}	
+	
+
 	
 	
 	@Test

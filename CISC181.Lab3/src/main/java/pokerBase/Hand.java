@@ -135,7 +135,271 @@ public class Hand {
 		return h;
 	}
 
-	public void handleJokers(Hand h) {
+	private static Hand handleJokersHand(Hand h) {
+		
+		// This is to count how many jokers there are in the hand
+				// Then, we also record the Joker's iCardNbr as to not mess up anything
+				// in the long run
+				// The result will have a hand without jokers
+				int jokerCount = 0;
+				ArrayList<Integer> jokerNbr = new ArrayList();
+
+				for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+					if (h.getBestCardsInHand().get(i).geteRank() == eRank.JOKER) {
+						jokerCount++;
+						jokerNbr.add(h.getBestCardsInHand().get(i).getiCardNbr());
+						h.getBestCardsInHand().remove(i);
+					} else
+						continue;
+				}
+
+				// Now, time to see what to do with the remaining cards
+				// Check whether or not these cards can be pairs and such
+				int sameCards1 = 0;
+				Collections.sort(h.getBestCardsInHand());
+
+				// Checking for pairs
+				for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
+					if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j + 1).geteRank()) {
+						sameCards1++;
+					}
+				}
+
+				// Now, based on the amount of same cards, we check for which pairs can
+				// go with which, and which straights are the best possible solutions.
+				if (sameCards1 == 0 && h.getBestCardsInHand().size() != 0) {
+					eRank[] tempRank = eRank.values(); // Temporary for filling in stuff
+					int number = 0;
+
+					// First we check if the difference between the highest card and the
+					// lowest card is available
+					// For a straight...
+					if (h.getBestCardsInHand().size() == 1) {
+						// If there's only 1 card, we can go straight for a royal flush,
+						// if not,
+						// a regular flush will be best.
+						if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10
+								&& h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14) {
+							for (int i = 10; i < 15; i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4) { // Regular
+																									// Straight
+																									// Flush 
+							for (int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand()
+									.get(0).geteRank().getiRankNbr(); i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else {
+							for (int i = 0; i < 6; i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						}
+					} else { //For anything else with more than 1 card
+						int highest = 0;
+						int lowest = 99;
+						//See if the highest card and the lowest card has enough distance
+						//to cover to fulfill a straight or straight flush
+						//Testing for flush is easy, no testing is required. All that's needed is to
+						//Duplicate the first card's suit. The only way for a flush to be a flush is
+						//if all the suits are the same anyway
+						for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+							if (h.getBestCardsInHand().get(i).geteRank().getiRankNbr() < lowest)
+								lowest = h.getBestCardsInHand().get(i).geteRank().getiRankNbr();
+							if (h.getBestCardsInHand().get(i).geteRank().getiRankNbr() > highest)
+								highest = h.getBestCardsInHand().get(i).geteRank().getiRankNbr();
+						}
+						//This is so that we do not go over or under the enum ranks
+						if (highest - lowest <= 4 && highest - 4 >= 2) {
+							for (int i = h.getBestCardsInHand().get(highest).geteRank().getiRankNbr(); i > h
+									.getBestCardsInHand().get(highest).geteRank().getiRankNbr() - 4; i--) {
+								Collections.sort(h.getBestCardsInHand());
+								if (i == h.getBestCardsInHand().get(i).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else if (highest - lowest <= 4 && highest - 4 < 2) {
+							for (int i = h.getBestCardsInHand().get(lowest).geteRank().getiRankNbr() + 4; i > h
+									.getBestCardsInHand().get(lowest).geteRank().getiRankNbr(); i--) {
+								Collections.sort(h.getBestCardsInHand());
+								if (i == h.getBestCardsInHand().get(i).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else { // No way to get a straight, and can only add pairs
+									// as highest possible solution.
+							switch (h.getBestCardsInHand().size()) {
+							case 1:
+							case 2:
+							case 3:
+								for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+									h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+											h.getBestCardsInHand().get(0).geteRank(),
+											jokerNbr.get(number++)));
+								}
+								break;
+							case 4: //Two Pairs is the best solution for this
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+										h.getBestCardsInHand().get(0).geteRank(),
+										jokerNbr.get(number++)));
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+										h.getBestCardsInHand().get(1).geteRank(),
+										jokerNbr.get(number++)));
+								break;
+							default:
+								Collections.sort(h.getBestCardsInHand());
+							}
+						}
+					}
+
+					switch (h.getBestCardsInHand().size()) {
+					case 1: // If there's only 1 card, we can go straight for a royal
+							// flush, if not,
+						// a regular flush will be best.
+						if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10
+								&& h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14) {
+							for (int i = 10; i < 15; i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4) { // Regular
+																									// Straight
+																									// Flush
+							for (int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand()
+									.get(0).geteRank().getiRankNbr(); i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						} else {
+							for (int i = 0; i < 6; i++) {
+								if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+									continue;
+								}
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+										jokerNbr.get(number++)));
+							}
+						}
+						break;
+					case 2:
+						break;
+					case 3:
+						break;
+					case 4:
+						break;
+					default:
+						Collections.sort(h.getBestCardsInHand());
+					}
+				} else if (sameCards1 == 1) {
+					// If there is only 1 pair of cards that are the same, regardless of
+					// the number of jokers,
+					// the best possible hand score can only be if the jokers were the
+					// same as the rank as the
+					// paired cards. Hands like 2 pair or Full house is unachievable.
+					for (int j = 0; j < h.getBestCardsInHand().size() - 1; j++) {
+						if (h.getBestCardsInHand().get(j).geteRank() == h.getBestCardsInHand().get(j + 1).geteRank()) {
+							for (int i = 0; i < jokerNbr.size(); i++) {
+								h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(j).geteSuit(),
+										h.getBestCardsInHand().get(j).geteRank(), jokerNbr.get(i)));
+							}
+							break;
+						}
+					}
+				} else if (sameCards1 == 2) {
+					// Now, it is possible to have 3 of the same cards or 2 and 2 of the
+					// same cards
+					switch (h.getBestCardsInHand().size()) {
+					case 3:
+						// If the same count is 2, the minimum cards the hand will have
+						// should at least be 3
+						// If there are only 3 cards in hand, and all three of them are
+						// the same,
+						// A five of a kind is the best solution.
+						for (int i = 0; i < jokerNbr.size(); i++) {
+							h.getBestCardsInHand()
+									.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+											h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+											jokerNbr.get(i)));
+						}
+						break;
+					case 4:
+						// Now there are a bit more possibilities with 4 cards in hand.
+						// One of them is that there are 3 cards that are the same,
+						// while 1 card is not.
+						// If this is true, the best option would be a four of a kind.
+						if (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getBestCardsInHand()
+								.get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
+							h.getBestCardsInHand()
+									.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+											h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+											jokerNbr.get(0)));
+						} else if (h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank() == h
+								.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
+							h.getBestCardsInHand()
+									.add(new Card(h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteSuit(),
+											h.getBestCardsInHand().get(eCardNo.SecondCard.getCardNo()).geteRank(),
+											jokerNbr.get(0)));
+						}
+						// What if there are 2 cards the same, and another 2 cards the
+						// same?
+						// The best possible result of this would be a full house.
+						else if (h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getBestCardsInHand()
+								.get(eCardNo.SecondCard.getCardNo()).geteRank()
+								&& h.getBestCardsInHand().get(eCardNo.ThirdCard.getCardNo()).geteRank() == h
+										.getBestCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank()) {
+							h.getBestCardsInHand()
+									.add(new Card(h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteSuit(),
+											h.getBestCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank(),
+											jokerNbr.get(0)));
+						} else {// The above situations should satisfy everything. If
+								// not, this would alert us.
+							System.out.println("Yo dawg sumthin' went wrong yu gotta check it out maannn");
+						}
+						break;
+					default:
+						Collections.sort(h.getBestCardsInHand());
+					}
+				} else if (sameCards1 == 3) {
+
+				} else { // And if all the cards are jokers, then you are one lucky gun!
+							// ROYAL FLUSH!!!
+					h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.TEN, jokerNbr.get(0)));
+					h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.JACK, jokerNbr.get(1)));
+					h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.QUEEN, jokerNbr.get(2)));
+					h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.KING, jokerNbr.get(3)));
+					h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE, jokerNbr.get(4)));
+				}
+		
+		return h;
+	}
+
+	private static ArrayList<Card> handleJokersArray(ArrayList<Card> cards) {
+		// Makes a hand
+		Hand h = new Hand();
+		for (Card c : cards) {
+			h.getBestCardsInHand().add(c);
+		}
 
 		// This is to count how many jokers there are in the hand
 		// Then, we also record the Joker's iCardNbr as to not mess up anything
@@ -168,32 +432,137 @@ public class Hand {
 		// Now, based on the amount of same cards, we check for which pairs can
 		// go with which, and which straights are the best possible solutions.
 		if (sameCards1 == 0 && h.getBestCardsInHand().size() != 0) {
-			eRank[] tempRank = eRank.values(); //Temporary for filling in stuff
+			eRank[] tempRank = eRank.values(); // Temporary for filling in stuff
 			int number = 0;
+
+			// First we check if the difference between the highest card and the
+			// lowest card is available
+			// For a straight...
+			if (h.getBestCardsInHand().size() == 1) {
+				// If there's only 1 card, we can go straight for a royal flush,
+				// if not,
+				// a regular flush will be best.
+				if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10
+						&& h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14) {
+					for (int i = 10; i < 15; i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
+					}
+				} else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4) { // Regular
+																							// Straight
+																							// Flush 
+					for (int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand()
+							.get(0).geteRank().getiRankNbr(); i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
+					}
+				} else {
+					for (int i = 0; i < 6; i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
+					}
+				}
+			} else { //For anything else with more than 1 card
+				int highest = 0;
+				int lowest = 99;
+				//See if the highest card and the lowest card has enough distance
+				//to cover to fulfill a straight or straight flush
+				//Testing for flush is easy, no testing is required. All that's needed is to
+				//Duplicate the first card's suit. The only way for a flush to be a flush is
+				//if all the suits are the same anyway
+				for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+					if (h.getBestCardsInHand().get(i).geteRank().getiRankNbr() < lowest)
+						lowest = h.getBestCardsInHand().get(i).geteRank().getiRankNbr();
+					if (h.getBestCardsInHand().get(i).geteRank().getiRankNbr() > highest)
+						highest = h.getBestCardsInHand().get(i).geteRank().getiRankNbr();
+				}
+				//This is so that we do not go over or under the enum ranks
+				if (highest - lowest <= 4 && highest - 4 >= 2) {
+					for (int i = h.getBestCardsInHand().get(highest).geteRank().getiRankNbr(); i > h
+							.getBestCardsInHand().get(highest).geteRank().getiRankNbr() - 4; i--) {
+						Collections.sort(h.getBestCardsInHand());
+						if (i == h.getBestCardsInHand().get(i).geteRank().getiRankNbr()) {
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
+					}
+				} else if (highest - lowest <= 4 && highest - 4 < 2) {
+					for (int i = h.getBestCardsInHand().get(lowest).geteRank().getiRankNbr() + 4; i > h
+							.getBestCardsInHand().get(lowest).geteRank().getiRankNbr(); i--) {
+						Collections.sort(h.getBestCardsInHand());
+						if (i == h.getBestCardsInHand().get(i).geteRank().getiRankNbr()) {
+							continue;
+						}
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
+					}
+				} else { // No way to get a straight, and can only add pairs
+							// as highest possible solution.
+					switch (h.getBestCardsInHand().size()) {
+					case 1:
+					case 2:
+					case 3:
+						for (int i = 0; i < h.getBestCardsInHand().size(); i++) {
+							h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+									h.getBestCardsInHand().get(0).geteRank(),
+									jokerNbr.get(number++)));
+						}
+						break;
+					case 4: //Two Pairs is the best solution for this
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+								h.getBestCardsInHand().get(0).geteRank(),
+								jokerNbr.get(number++)));
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), 
+								h.getBestCardsInHand().get(1).geteRank(),
+								jokerNbr.get(number++)));
+						break;
+					default:
+						Collections.sort(h.getBestCardsInHand());
+					}
+				}
+			}
+
 			switch (h.getBestCardsInHand().size()) {
-			case 1: //If there's only 1 card, we can go straight for a royal flush, if not,
-				//a regular flush will be best.
-				if(h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10 && 
-						h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14){
-					for(int i = 10; i < 15; i++){
-						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+			case 1: // If there's only 1 card, we can go straight for a royal
+					// flush, if not,
+				// a regular flush will be best.
+				if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() >= 10
+						&& h.getBestCardsInHand().get(0).geteRank().getiRankNbr() <= 14) {
+					for (int i = 10; i < 15; i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
 							continue;
 						}
-						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
 					}
-				}else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4){ //Regular Straight Flush
-					for(int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand().get(0).geteRank().getiRankNbr(); i++){
-						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+				} else if (h.getBestCardsInHand().get(0).geteRank().getiRankNbr() > 4) { // Regular
+																							// Straight
+																							// Flush
+					for (int i = h.getBestCardsInHand().get(0).geteRank().getiRankNbr() - 4; i < h.getBestCardsInHand()
+							.get(0).geteRank().getiRankNbr(); i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
 							continue;
 						}
-						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
 					}
-				}else{
-					for(int i = 0; i < 6; i++){
-						if(i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()){
+				} else {
+					for (int i = 0; i < 6; i++) {
+						if (i == h.getBestCardsInHand().get(0).geteRank().getiRankNbr()) {
 							continue;
 						}
-						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i], jokerNbr.get(number++)));
+						h.getBestCardsInHand().add(new Card(h.getBestCardsInHand().get(0).geteSuit(), tempRank[i],
+								jokerNbr.get(number++)));
 					}
 				}
 				break;
@@ -286,11 +655,36 @@ public class Hand {
 			h.getBestCardsInHand().add(new Card(eSuit.SPADES, eRank.ACE, jokerNbr.get(4)));
 		}
 
+		ArrayList<Card> newCards = new ArrayList();
+		for (Card i : h.getBestCardsInHand())
+			newCards.add(i);
+		
+		return newCards;
+
+	}
+	
+	private static Hand wildcardReplace(Hand h, Card c){
+		//Replaces the wildcard with a joker card, so that it may act like a joker
+		
+		for(int i = 0; i < h.getBestCardsInHand().size(); i++){
+			if (h.getBestCardsInHand().get(i) == c){
+				h.getBestCardsInHand().remove(i);
+				h.getBestCardsInHand().add(new Card(eSuit.CLUBS, eRank.JOKER, c.getiCardNbr()));
+			}
+			else{
+				continue;
+			}
+		}
+		
+		return h;
 	}
 
 	private static boolean isHandFlush(ArrayList<Card> cards) {
 		int cnt = 0;
 		boolean bIsFlush = false;
+		
+		cards = Hand.handleJokersArray(cards);
+
 		for (eSuit Suit : eSuit.values()) {
 			cnt = 0;
 			for (Card c : cards) {
@@ -308,6 +702,8 @@ public class Hand {
 	private static boolean isStraight(ArrayList<Card> cards, Card highCard) {
 		boolean bIsStraight = false;
 		boolean bAce = false;
+		
+		cards = Hand.handleJokersArray(cards);
 
 		int iStartCard = 0;
 		highCard.seteRank(cards.get(eCardNo.FirstCard.getCardNo()).geteRank());
@@ -346,6 +742,8 @@ public class Hand {
 
 		int iCnt = 0;
 		boolean isFive = false;
+		
+		h = Hand.handleJokersHand(h);
 
 		for (eRank Rank : eRank.values()) {
 			iCnt = 0;
@@ -369,6 +767,8 @@ public class Hand {
 	}
 
 	public static boolean isHandRoyalFlush(Hand h, HandScore hs) {
+		
+		h = Hand.handleJokersHand(h);
 
 		Card c = new Card();
 		boolean isRoyalFlush = false;
@@ -409,6 +809,8 @@ public class Hand {
 	public static boolean isHandStraightFlush(Hand h, HandScore hs) {
 		Card c = new Card();
 		boolean isRoyalFlush = false;
+		h = Hand.handleJokersHand(h);
+		
 		if ((isHandFlush(h.getCardsInHand())) && (isStraight(h.getCardsInHand(), c))) {
 			isRoyalFlush = true;
 			hs.setHandStrength(eHandStrength.StraightFlush.getHandStrength());
@@ -422,6 +824,7 @@ public class Hand {
 	public static boolean isHandFourOfAKind(Hand h, HandScore hs) {
 
 		boolean bHandCheck = false;
+		h = Hand.handleJokersHand(h);
 
 		if (h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getCardsInHand()
 				.get(eCardNo.FourthCard.getCardNo()).geteRank()) {
@@ -450,7 +853,9 @@ public class Hand {
 	public static boolean isHandFullHouse(Hand h, HandScore hs) {
 
 		boolean isFullHouse = false;
+		h = Hand.handleJokersHand(h);
 		ArrayList<Card> kickers = new ArrayList<Card>();
+		
 		if ((h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getCardsInHand()
 				.get(eCardNo.ThirdCard.getCardNo()).geteRank())
 				&& (h.getCardsInHand().get(eCardNo.FourthCard.getCardNo()).geteRank() == h.getCardsInHand()
@@ -476,6 +881,8 @@ public class Hand {
 	public static boolean isHandFlush(Hand h, HandScore hs) {
 
 		boolean bIsFlush = false;
+		h = Hand.handleJokersHand(h);
+		
 		if (isHandFlush(h.getCardsInHand())) {
 			hs.setHandStrength(eHandStrength.Flush.getHandStrength());
 			hs.setHiHand(h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank().getiRankNbr());
@@ -496,6 +903,8 @@ public class Hand {
 
 		boolean bIsStraight = false;
 		Card highCard = new Card();
+		h = Hand.handleJokersHand(h);
+		
 		if (isStraight(h.getCardsInHand(), highCard)) {
 			hs.setHandStrength(eHandStrength.Straight.getHandStrength());
 			hs.setHiHand(highCard.geteRank().getiRankNbr());
@@ -509,6 +918,8 @@ public class Hand {
 
 		boolean isThreeOfAKind = false;
 		ArrayList<Card> kickers = new ArrayList<Card>();
+		h = Hand.handleJokersHand(h);
+		
 		if (h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getCardsInHand()
 				.get(eCardNo.ThirdCard.getCardNo()).geteRank()) {
 			isThreeOfAKind = true;
@@ -543,7 +954,9 @@ public class Hand {
 	public static boolean isHandTwoPair(Hand h, HandScore hs) {
 
 		boolean isTwoPair = false;
+		h = Hand.handleJokersHand(h);
 		ArrayList<Card> kickers = new ArrayList<Card>();
+		
 		if ((h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getCardsInHand()
 				.get(eCardNo.SecondCard.getCardNo()).geteRank())
 				&& (h.getCardsInHand().get(eCardNo.ThirdCard.getCardNo()).geteRank() == h.getCardsInHand()
@@ -579,8 +992,11 @@ public class Hand {
 	}
 
 	public static boolean isHandPair(Hand h, HandScore hs) {
+		
 		boolean isPair = false;
 		ArrayList<Card> kickers = new ArrayList<Card>();
+		h = Hand.handleJokersHand(h);
+		
 		if (h.getCardsInHand().get(eCardNo.FirstCard.getCardNo()).geteRank() == h.getCardsInHand()
 				.get(eCardNo.SecondCard.getCardNo()).geteRank()) {
 			isPair = true;
